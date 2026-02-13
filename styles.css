@@ -19,6 +19,9 @@ button {
   border: none;
   outline: none;
   background-color: transparent;
+
+  font-size: inherit;
+  font-family: inherit;
 }
 
 button:hover {
@@ -80,4 +83,17 @@ button:hover {
 .model-content {
   max-height: 70vh;
   overflow-y: auto;
+}
+
+main {
+  padding: 50px;
+}
+
+#btn-model {
+  background-color: #ebebeb;
+  padding: 10px 20px;
+  border-radius: 6px;
+
+  -webkit-box-shadow: 0px 4px 2px 0px rgba(0, 0, 0, 0.6);
+  box-shadow: 0px 2px 3px 0px rgba(0, 0, 0, 0.5);
 }
