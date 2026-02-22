@@ -5,8 +5,8 @@ function Model() {
   // -
   this.open = (option = {}) => {
     // get content from template
-    const { templateID } = option;
-    const template = $(`#${templateID}`);
+    const { templateId, allowBackdropClose = true } = option;
+    const template = $(`#${templateId}`);
     if (!template) {
       console.error("template id none exits");
       return;
@@ -43,17 +43,24 @@ function Model() {
       this.close(backdrop);
     };
 
-    backdrop.onclick = (e) => {
-      if (e.target === backdrop) {
-        this.close(backdrop);
-      }
-    };
+    if (allowBackdropClose) {
+      backdrop.onclick = (e) => {
+        if (e.target === backdrop) {
+          this.close(backdrop);
+        }
+      };
+    }
 
     document.addEventListener("keydown", (e) => {
       if (e.key === "Escape") {
         this.close(backdrop);
       }
     });
+
+    // disable scroll
+    document.body.classList.add("no-scroll");
+
+    return backdrop;
   };
 
   // -
@@ -62,6 +69,9 @@ function Model() {
     backdrop.ontransitionend = () => {
       backdrop.remove();
     };
+
+    // enable scroll
+    document.body.classList.remove("no-scroll");
   };
 }
 
@@ -70,12 +80,22 @@ const model2 = new Model();
 
 $("#btn-1").onclick = () => {
   model1.open({
-    templateID: "model-1",
+    templateId: "model-1",
   });
 };
 
 $("#btn-2").onclick = () => {
-  model2.open({
-    templateID: "model-2",
+  const modelElement = model2.open({
+    templateId: "model-2",
+    allowBackdropClose: false,
   });
+  const form = modelElement.querySelector("#login-form");
+  form.onsubmit = (e) => {
+    e.preventDefault();
+    const formData = {
+      mail: $("#mail").value.trim(),
+      pass: $("#password").value.trim(),
+    };
+    console.log(formData);
+  };
 };
