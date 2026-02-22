@@ -9,9 +9,88 @@
   <body>
     <!-- main  -->
     <main>
-      <button class="btn-model" id="model-1">Open model 1</button>
-      <button class="btn-model" id="model-2">Open model 2</button>
+      <button class="btn-model" id="btn-1">Open model 1</button>
+      <button class="btn-model" id="btn-2">Open model 2</button>
     </main>
+
+    <template id="model-1">
+      <h1>Loài hoa số 1 của tết Việt</h1>
+      <br />
+      <p>
+        Ở Việt Nam, ngày tết thường có rất nhiều loại hoa, nào là hoa cúc, hoa
+        giấy, ... nhưng trong đó hoa Mai là loài hoa người người nhà nhà dùng để
+        đón tết
+      </p>
+      <br />
+      <h2>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Alias?</h2>
+      <br />
+      <p>
+        Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolorum quia
+        nostrum deserunt distinctio possimus eligendi consequatur alias nemo
+        autem in!
+      </p>
+      <br />
+      <img
+        src="./img/vinh-thang-g5lPbnYi3V0-unsplash (1).jpg"
+        alt="hoamai"
+        style="width: 100%; display: block"
+      />
+      <br />
+      <p>
+        Lorem ipsum dolor sit amet consectetur adipisicing elit. Impedit
+        reprehenderit, doloremque, ratione dolore quod quos beatae unde
+        consequatur perferendis earum temporibus quo ex amet quibusdam saepe, ab
+        nemo rem modi.
+      </p>
+      <br />
+      <p>
+        Lorem ipsum dolor sit amet consectetur adipisicing elit. Facilis
+        laboriosam assumenda consequatur sed maxime molestias dolorum quod
+        mollitia veniam nemo, fugiat quas voluptatum modi et similique odit.
+      </p>
+    </template>
+
+    <template id="model-2">
+      <h1>Login</h1>
+      <br />
+      <form action="">
+        <!-- mail  -->
+        <div>
+          <label for="mail" style="display: block">Email</label>
+          <input
+            type="email"
+            name="mail"
+            id="mail"
+            placeholder="Enter your email"
+            required
+          />
+        </div>
+        <br />
+        <!-- pass  -->
+        <div>
+          <label for="password" style="display: block">Password</label>
+          <input
+            type="password"
+            name="password"
+            id="password"
+            placeholder="Enter your password"
+            required
+          />
+        </div>
+        <br />
+        <!-- submit  -->
+        <button
+          type="submit"
+          style="
+            background-color: #ebebeb;
+            padding: 5px 10px;
+            border-radius: 4px;
+          "
+        >
+          Submit
+        </button>
+      </form>
+    </template>
 
     <!-- script  -->
     <script src="./main.js"></script>

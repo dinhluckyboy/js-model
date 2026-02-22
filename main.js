@@ -1,18 +1,18 @@
 const $ = document.querySelector.bind(document);
 const $$ = document.querySelectorAll.bind(document);
 
-/*  <div id="model-2" class="model-backdrop">
-      <div class="model-container">
-        <button class="model-close">&times;</button>
-        <div class="model-content">
-          <p>model 2</p>
-        </div>
-      </div>
-    </div>  */
-
 function Model() {
-  // opend model
-  this.open = (content) => {
+  // -
+  this.open = (option = {}) => {
+    // get content from template
+    const { templateID } = option;
+    const template = $(`#${templateID}`);
+    if (!template) {
+      console.error("template id none exits");
+      return;
+    }
+    const content = template.content.cloneNode(true);
+
     // create element
     const backdrop = document.createElement("div");
     backdrop.className = "model-backdrop";
@@ -28,7 +28,7 @@ function Model() {
     modelContent.className = "model-content";
 
     // append element
-    modelContent.innerHTML = content;
+    modelContent.append(content);
     container.append(btnClose, modelContent);
     backdrop.append(container);
     document.body.append(backdrop);
@@ -56,7 +56,7 @@ function Model() {
     });
   };
 
-  // close model
+  // -
   this.close = (backdrop) => {
     backdrop.classList.remove("show");
     backdrop.ontransitionend = () => {
@@ -68,10 +68,14 @@ function Model() {
 const model1 = new Model();
 const model2 = new Model();
 
-$("#model-1").onclick = () => {
-  model1.open("<h1>Model 1</h1>");
+$("#btn-1").onclick = () => {
+  model1.open({
+    templateID: "model-1",
+  });
 };
 
-$("#model-2").onclick = () => {
-  model2.open("<h1>Model 2</h1>");
+$("#btn-2").onclick = () => {
+  model2.open({
+    templateID: "model-2",
+  });
 };
