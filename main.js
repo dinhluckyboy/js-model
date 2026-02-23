@@ -1,6 +1,8 @@
 const $ = document.querySelector.bind(document);
 const $$ = document.querySelectorAll.bind(document);
 
+const scrollBarWidth = getScrollBar() + "px";
+
 function Model() {
   // -
   this.open = (option = {}) => {
@@ -59,6 +61,8 @@ function Model() {
 
     // disable scroll
     document.body.classList.add("no-scroll");
+    //padding right scroll bar
+    document.body.style.paddingRight = scrollBarWidth;
 
     return backdrop;
   };
@@ -72,6 +76,8 @@ function Model() {
 
     // enable scroll
     document.body.classList.remove("no-scroll");
+    //remove padding right scroll bar
+    document.body.style.paddingRight = "";
   };
 }
 
@@ -99,3 +105,18 @@ $("#btn-2").onclick = () => {
     console.log(formData);
   };
 };
+
+// tinh do rong cua scroll bar
+function getScrollBar() {
+  const div = document.createElement("div");
+  div.style.position = "absolute";
+  div.style.top = "-999px";
+  div.style.width = "100px";
+  div.style.height = "100px";
+  div.style.visibility = "hidden";
+  div.style.overflow = "scroll";
+  document.body.appendChild(div);
+  const scrollBarWidth = div.offsetWidth - div.clientWidth;
+  document.body.removeChild(div);
+  return scrollBarWidth;
+}
