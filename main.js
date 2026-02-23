@@ -1,9 +1,8 @@
 const $ = document.querySelector.bind(document);
 const $$ = document.querySelectorAll.bind(document);
 
-const scrollBarWidth = getScrollBar() + "px";
-
 function Model() {
+  let _scrollBarWidth;
   // -
   this.open = (option = {}) => {
     // get content from template
@@ -62,7 +61,22 @@ function Model() {
     // disable scroll
     document.body.classList.add("no-scroll");
     //padding right scroll bar
-    document.body.style.paddingRight = scrollBarWidth;
+    document.body.style.paddingRight = getScrollBar() + "px";
+
+    // tinh do rong cua scroll bar
+    function getScrollBar() {
+      if (_scrollBarWidth !== undefined) return _scrollBarWidth;
+      const div = document.createElement("div");
+      div.style.position = "absolute";
+      div.style.top = "-999px";
+      div.style.width = "100px";
+      div.style.height = "100px";
+      div.style.overflow = "scroll";
+      document.body.appendChild(div);
+      _scrollBarWidth = div.offsetWidth - div.clientWidth;
+      document.body.removeChild(div);
+      return _scrollBarWidth;
+    }
 
     return backdrop;
   };
@@ -105,18 +119,3 @@ $("#btn-2").onclick = () => {
     console.log(formData);
   };
 };
-
-// tinh do rong cua scroll bar
-function getScrollBar() {
-  const div = document.createElement("div");
-  div.style.position = "absolute";
-  div.style.top = "-999px";
-  div.style.width = "100px";
-  div.style.height = "100px";
-  div.style.visibility = "hidden";
-  div.style.overflow = "scroll";
-  document.body.appendChild(div);
-  const scrollBarWidth = div.offsetWidth - div.clientWidth;
-  document.body.removeChild(div);
-  return scrollBarWidth;
-}
