@@ -1,19 +1,22 @@
 const $ = document.querySelector.bind(document);
 const $$ = document.querySelectorAll.bind(document);
 
-function Model() {
-  let _scrollBarWidth;
-  // -
-  this.open = (option = {}) => {
-    // get content from template
-    const { templateId, allowBackdropClose = true } = option;
-    const template = $(`#${templateId}`);
-    if (!template) {
-      console.error("template id none exits");
-      return;
-    }
-    const content = template.content.cloneNode(true);
+function Model(option = {}) {
+  let _scrollBarWidth; // cache scroll bar width
+  // get content... from option
+  const { templateId, closeMethods = ["button", "overlay", "escape"] } = option;
+  const template = $(`#${templateId}`);
+  if (!template) {
+    console.error("template id none exits");
+    return;
+  }
+  this.allowButtonClose = closeMethods.includes("button");
+  this.allowBackdropClose = closeMethods.includes("overlay");
+  this.allowEscapeClose = closeMethods.includes("escape");
 
+  // -
+  this.open = () => {
+    const content = template.content.cloneNode(true);
     // create element
     const backdrop = document.createElement("div");
     backdrop.className = "model-backdrop";
@@ -21,16 +24,22 @@ function Model() {
     const container = document.createElement("div");
     container.className = "model-container";
 
-    const btnClose = document.createElement("button");
-    btnClose.className = "model-close";
-    btnClose.innerHTML = "&times;";
+    if (this.allowButtonClose) {
+      const btnClose = document.createElement("button");
+      btnClose.className = "model-close";
+      btnClose.innerHTML = "&times;";
+      container.append(btnClose); // append element
+      btnClose.onclick = () => {
+        this.close(backdrop);
+      }; // handel close event
+    }
 
     const modelContent = document.createElement("div");
     modelContent.className = "model-content";
 
     // append element
     modelContent.append(content);
-    container.append(btnClose, modelContent);
+    container.append(modelContent);
     backdrop.append(container);
     document.body.append(backdrop);
 
@@ -40,23 +49,20 @@ function Model() {
     }, 1);
 
     // handel close event
-    btnClose.onclick = () => {
-      this.close(backdrop);
-    };
-
-    if (allowBackdropClose) {
+    if (this.allowBackdropClose) {
       backdrop.onclick = (e) => {
         if (e.target === backdrop) {
           this.close(backdrop);
         }
       };
     }
-
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape") {
-        this.close(backdrop);
-      }
-    });
+    if (this.allowEscapeClose) {
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+          this.close(backdrop);
+        }
+      });
+    }
 
     // disable scroll
     document.body.classList.add("no-scroll");
@@ -95,20 +101,23 @@ function Model() {
   };
 }
 
-const model1 = new Model();
-const model2 = new Model();
+// create model
+const model1 = new Model({
+  templateId: "model-1",
+});
+
+const model2 = new Model({
+  templateId: "model-2",
+  closeMethods: ["button", "escape"],
+});
 
 $("#btn-1").onclick = () => {
-  model1.open({
-    templateId: "model-1",
-  });
-};
+  model1.open();
+}; // open model 1
 
 $("#btn-2").onclick = () => {
-  const modelElement = model2.open({
-    templateId: "model-2",
-    allowBackdropClose: false,
-  });
+  const modelElement = model2.open();
+
   const form = modelElement.querySelector("#login-form");
   form.onsubmit = (e) => {
     e.preventDefault();
@@ -118,4 +127,4 @@ $("#btn-2").onclick = () => {
     };
     console.log(formData);
   };
-};
+}; // open model 2
