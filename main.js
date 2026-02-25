@@ -9,6 +9,8 @@ function Model(option = {}) {
     closeMethods = ["button", "overlay", "escape"],
     destroyOnClose = true,
     cssClass = [],
+    onOpen,
+    onClose,
   } = option;
   const template = $(`#${templateId}`);
   if (!template) {
@@ -65,7 +67,7 @@ function Model(option = {}) {
     // show backdrop
     setTimeout(() => {
       this._backdrop.classList.add("show");
-    }, 1);
+    }, 0);
 
     // handel close event
     if (this.allowBackdropClose) {
@@ -103,25 +105,41 @@ function Model(option = {}) {
       return _scrollBarWidth;
     }
 
+    // onOpen
+    this._backdrop.ontransitionend = (e) => {
+      if (e.propertyName !== "transform") return;
+      if (typeof onOpen === "function") {
+        onOpen();
+      }
+    };
+
     return this._backdrop;
   };
 
   // -
   this.close = (destroy = destroyOnClose) => {
     this._backdrop.classList.remove("show");
-    if (destroy) {
-      this._backdrop.ontransitionend = () => {
-        if (this._backdrop) {
-          this._backdrop.remove();
-          this._backdrop = null;
-        }
-      };
-    }
 
-    // enable scroll
-    document.body.classList.remove("no-scroll");
-    //remove padding right scroll bar
-    document.body.style.paddingRight = "";
+    this._backdrop.ontransitionend = (e) => {
+      if (e.propertyName !== "transform") return;
+
+      this._backdrop.ontransitionend = null; // gỡ handel sau khi chạy xong
+
+      if (destroy && this._backdrop) {
+        this._backdrop.remove();
+        this._backdrop = null;
+      }
+
+      // onClose
+      if (typeof onClose === "function") {
+        onClose();
+      }
+
+      // enable scroll
+      document.body.classList.remove("no-scroll");
+      //remove padding right scroll bar
+      document.body.style.paddingRight = "";
+    };
   };
 
   // -
@@ -135,12 +153,24 @@ const model1 = new Model({
   templateId: "model-1",
   destroyOnClose: false,
   cssClass: ["class1"],
+  onOpen: () => {
+    console.log("model 1 open");
+  },
+  onClose: () => {
+    console.log("model 1 close");
+  },
 });
 
 const model2 = new Model({
   templateId: "model-2",
   closeMethods: ["button", "escape"],
   cssClass: ["class1", "class2", "class3"],
+  onOpen: () => {
+    console.log("model 2 open");
+  },
+  onClose: () => {
+    console.log("model 2 close");
+  },
 });
 
 $("#btn-1").onclick = () => {
