@@ -4,7 +4,12 @@ const $$ = document.querySelectorAll.bind(document);
 function Model(option = {}) {
   let _scrollBarWidth; // cache scroll bar width
   // get content... from option
-  const { templateId, closeMethods = ["button", "overlay", "escape"] } = option;
+  const {
+    templateId,
+    closeMethods = ["button", "overlay", "escape"],
+    destroyOnClose = true,
+    cssClass = [],
+  } = option;
   const template = $(`#${templateId}`);
   if (!template) {
     console.error("template id none exits");
@@ -14,15 +19,22 @@ function Model(option = {}) {
   this.allowBackdropClose = closeMethods.includes("overlay");
   this.allowEscapeClose = closeMethods.includes("escape");
 
-  // -
-  this.open = () => {
+  this._createElement = () => {
     const content = template.content.cloneNode(true);
     // create element
-    const backdrop = document.createElement("div");
-    backdrop.className = "model-backdrop";
+    this._backdrop = document.createElement("div");
+    this._backdrop.className = "model-backdrop";
 
     const container = document.createElement("div");
     container.className = "model-container";
+
+    if (cssClass.length > 0) {
+      cssClass.forEach((className) => {
+        if (typeof className === "string") {
+          container.classList.add(className);
+        }
+      });
+    } // add css class to container
 
     if (this.allowButtonClose) {
       const btnClose = document.createElement("button");
@@ -30,7 +42,7 @@ function Model(option = {}) {
       btnClose.innerHTML = "&times;";
       container.append(btnClose); // append element
       btnClose.onclick = () => {
-        this.close(backdrop);
+        this.close();
       }; // handel close event
     }
 
@@ -40,26 +52,33 @@ function Model(option = {}) {
     // append element
     modelContent.append(content);
     container.append(modelContent);
-    backdrop.append(container);
-    document.body.append(backdrop);
+    this._backdrop.append(container);
+    document.body.append(this._backdrop);
+  };
+
+  // -
+  this.open = () => {
+    if (!this._backdrop) {
+      this._createElement();
+    }
 
     // show backdrop
     setTimeout(() => {
-      backdrop.classList.add("show");
+      this._backdrop.classList.add("show");
     }, 1);
 
     // handel close event
     if (this.allowBackdropClose) {
-      backdrop.onclick = (e) => {
-        if (e.target === backdrop) {
-          this.close(backdrop);
+      this._backdrop.onclick = (e) => {
+        if (e.target === this._backdrop) {
+          this.close();
         }
       };
     }
     if (this.allowEscapeClose) {
       document.addEventListener("keydown", (e) => {
         if (e.key === "Escape") {
-          this.close(backdrop);
+          this.close();
         }
       });
     }
@@ -84,31 +103,44 @@ function Model(option = {}) {
       return _scrollBarWidth;
     }
 
-    return backdrop;
+    return this._backdrop;
   };
 
   // -
-  this.close = (backdrop) => {
-    backdrop.classList.remove("show");
-    backdrop.ontransitionend = () => {
-      backdrop.remove();
-    };
+  this.close = (destroy = destroyOnClose) => {
+    this._backdrop.classList.remove("show");
+    if (destroy) {
+      this._backdrop.ontransitionend = () => {
+        if (this._backdrop) {
+          this._backdrop.remove();
+          this._backdrop = null;
+        }
+      };
+    }
 
     // enable scroll
     document.body.classList.remove("no-scroll");
     //remove padding right scroll bar
     document.body.style.paddingRight = "";
   };
+
+  // -
+  this.destroy = () => {
+    this.close(true);
+  };
 }
 
 // create model
 const model1 = new Model({
   templateId: "model-1",
+  destroyOnClose: false,
+  cssClass: ["class1"],
 });
 
 const model2 = new Model({
   templateId: "model-2",
   closeMethods: ["button", "escape"],
+  cssClass: ["class1", "class2", "class3"],
 });
 
 $("#btn-1").onclick = () => {
