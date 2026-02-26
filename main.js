@@ -11,6 +11,7 @@ function Model(option = {}) {
     cssClass = [],
     onOpen,
     onClose,
+    footer = false,
   } = option;
   const template = $(`#${templateId}`);
   if (!template) {
@@ -56,6 +57,16 @@ function Model(option = {}) {
     container.append(modelContent);
     this._backdrop.append(container);
     document.body.append(this._backdrop);
+
+    // add footer
+    if (footer) {
+      this._modelFooter = document.createElement("div");
+      this._modelFooter.className = "model-footer";
+      if (this._footerContent) {
+        this._modelFooter.innerHTML = this._footerContent;
+      }
+      container.append(this._modelFooter);
+    }
   };
 
   // -
@@ -105,13 +116,20 @@ function Model(option = {}) {
       return _scrollBarWidth;
     }
 
+    // // onOpen
+    // this._backdrop.ontransitionend = (e) => {
+    //   if (e.propertyName !== "transform") return;
+    //   if (typeof onOpen === "function") {
+    //     onOpen();
+    //   }
+    // };
+
     // onOpen
-    this._backdrop.ontransitionend = (e) => {
-      if (e.propertyName !== "transform") return;
+    this._onTransitionEnd(() => {
       if (typeof onOpen === "function") {
         onOpen();
       }
-    };
+    });
 
     return this._backdrop;
   };
@@ -120,14 +138,13 @@ function Model(option = {}) {
   this.close = (destroy = destroyOnClose) => {
     this._backdrop.classList.remove("show");
 
-    this._backdrop.ontransitionend = (e) => {
-      if (e.propertyName !== "transform") return;
-
+    this._onTransitionEnd(() => {
       this._backdrop.ontransitionend = null; // gỡ handel sau khi chạy xong
 
       if (destroy && this._backdrop) {
         this._backdrop.remove();
         this._backdrop = null;
+        this._modelFooter = null;
       }
 
       // onClose
@@ -139,12 +156,29 @@ function Model(option = {}) {
       document.body.classList.remove("no-scroll");
       //remove padding right scroll bar
       document.body.style.paddingRight = "";
-    };
+    });
   };
 
   // -
   this.destroy = () => {
     this.close(true);
+  };
+
+  // -
+  this._onTransitionEnd = (callback) => {
+    this._backdrop.ontransitionend = (e) => {
+      if (e.propertyName !== "transform") return;
+      if (typeof callback === "function") {
+        callback();
+      }
+    };
+  };
+
+  this.setFooterContent = (html) => {
+    this._footerContent = html;
+    if (this._modelFooter) {
+      this._modelFooter.innerHTML = this._footerContent;
+    }
   };
 }
 
@@ -173,6 +207,17 @@ const model2 = new Model({
   },
 });
 
+const model3 = new Model({
+  templateId: "model-3",
+  onOpen: () => {
+    console.log("model 3 open");
+  },
+  onClose: () => {
+    console.log("model 3 close");
+  },
+  footer: true,
+});
+
 $("#btn-1").onclick = () => {
   model1.open();
 }; // open model 1
@@ -190,3 +235,7 @@ $("#btn-2").onclick = () => {
     console.log(formData);
   };
 }; // open model 2
+
+$("#btn-3").onclick = () => {
+  model3.open();
+};

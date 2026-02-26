@@ -85,6 +85,10 @@ button:hover {
   overflow-y: auto;
 }
 
+.model-footer {
+  padding-top: 30px;
+}
+
 main {
   padding: 50px;
 }
