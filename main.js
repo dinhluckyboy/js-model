@@ -1,6 +1,8 @@
 const $ = document.querySelector.bind(document);
 const $$ = document.querySelectorAll.bind(document);
 
+Model.elements = []; // array save model open current
+
 function Model(option = {}) {
   let _scrollBarWidth; // cache scroll bar width
   // get content... from option
@@ -18,9 +20,9 @@ function Model(option = {}) {
     console.error("template id none exits");
     return;
   }
-  this.allowButtonClose = closeMethods.includes("button");
-  this.allowBackdropClose = closeMethods.includes("overlay");
-  this.allowEscapeClose = closeMethods.includes("escape");
+  this._allowButtonClose = closeMethods.includes("button");
+  this._allowBackdropClose = closeMethods.includes("overlay");
+  this._allowEscapeClose = closeMethods.includes("escape");
 
   this._createElement = () => {
     const content = template.content.cloneNode(true);
@@ -39,7 +41,7 @@ function Model(option = {}) {
       });
     } // add css class to container
 
-    if (this.allowButtonClose) {
+    if (this._allowButtonClose) {
       const btnClose = document.createElement("button");
       btnClose.className = "model-close";
       btnClose.innerHTML = "&times;";
@@ -78,6 +80,8 @@ function Model(option = {}) {
 
   // -
   this.open = () => {
+    Model.elements.push(this); // push model open current
+
     if (!this._backdrop) {
       this._createElement();
     }
@@ -88,19 +92,24 @@ function Model(option = {}) {
     }, 0);
 
     // handel close event
-    if (this.allowBackdropClose) {
+    if (this._allowBackdropClose) {
       this._backdrop.onclick = (e) => {
         if (e.target === this._backdrop) {
           this.close();
         }
       };
     }
-    if (this.allowEscapeClose) {
-      document.addEventListener("keydown", (e) => {
-        if (e.key === "Escape") {
-          this.close();
-        }
-      });
+
+    // handel escape close
+    this._handelEscapeClose = (e) => {
+      const lastModel = Model.elements[Model.elements.length - 1]; // last model
+      if (e.key === "Escape" && this === lastModel) {
+        this.close();
+      }
+    };
+
+    if (this._allowEscapeClose) {
+      document.addEventListener("keydown", this._handelEscapeClose);
     }
 
     // disable scroll
@@ -138,11 +147,25 @@ function Model(option = {}) {
       }
     });
 
+    // test
+    $("#btn-test-2").onclick = () => {
+      model2.open();
+      $("#btn-test-3").onclick = () => {
+        model3.open();
+      };
+    }; // dang test
+
     return this._backdrop;
   };
 
   // -
   this.close = (destroy = destroyOnClose) => {
+    if (this._allowEscapeClose) {
+      document.removeEventListener("keydown", this._handelEscapeClose);
+    } // remove event listener
+
+    Model.elements.pop(); // remove element last array
+
     this._backdrop.classList.remove("show");
 
     this._onTransitionEnd(() => {
@@ -158,11 +181,12 @@ function Model(option = {}) {
       if (typeof onClose === "function") {
         onClose();
       }
-
-      // enable scroll
-      document.body.classList.remove("no-scroll");
-      //remove padding right scroll bar
-      document.body.style.paddingRight = "";
+      if (!Model.elements.length) {
+        // enable scroll
+        document.body.classList.remove("no-scroll");
+        //remove padding right scroll bar
+        document.body.style.paddingRight = "";
+      } // Model.length = 0 thi show scroll bar
     });
   };
 
