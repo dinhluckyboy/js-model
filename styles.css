@@ -87,6 +87,20 @@ button:hover {
 
 .model-footer {
   padding-top: 30px;
+  display: flex;
+  justify-content: right;
+}
+
+.model-btn {
+  background-color: #959faf;
+  color: #fff;
+  padding: 6px 18px;
+  border-radius: 4px;
+  margin-left: 16px;
+}
+
+.model-btn.primary {
+  background-color: #3d6bb4;
 }
 
 main {

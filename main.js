@@ -64,8 +64,15 @@ function Model(option = {}) {
       this._modelFooter.className = "model-footer";
       if (this._footerContent) {
         this._modelFooter.innerHTML = this._footerContent;
-      }
-      container.append(this._modelFooter);
+      } // add content
+
+      if (this._footerButton.length > 0) {
+        this._footerButton.forEach((btn) => {
+          this._modelFooter.append(btn);
+        });
+      } // add button
+
+      container.append(this._modelFooter); // add footer to container
     }
   };
 
@@ -180,6 +187,16 @@ function Model(option = {}) {
       this._modelFooter.innerHTML = this._footerContent;
     }
   };
+
+  this._footerButton = [];
+
+  this.addFooterButton = (title, className, callback) => {
+    const btn = document.createElement("button");
+    btn.className = className;
+    btn.innerHTML = title;
+    btn.onclick = callback;
+    this._footerButton.push(btn);
+  };
 }
 
 // create model
@@ -209,6 +226,7 @@ const model2 = new Model({
 
 const model3 = new Model({
   templateId: "model-3",
+  closeMethods: [],
   onOpen: () => {
     console.log("model 3 open");
   },
@@ -239,3 +257,13 @@ $("#btn-2").onclick = () => {
 $("#btn-3").onclick = () => {
   model3.open();
 };
+
+model3.addFooterButton("Cancel", "model-btn", (e) => {
+  console.log("Cancel button click");
+  model3.close();
+});
+
+model3.addFooterButton("Agree", "model-btn primary", (e) => {
+  console.log("Agree button click");
+  model3.close();
+});
