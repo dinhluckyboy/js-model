@@ -4,7 +4,6 @@ const $$ = document.querySelectorAll.bind(document);
 Model.elements = []; // array save model open current
 
 function Model(option = {}) {
-  let _scrollBarWidth; // cache scroll bar width
   // get content... from option
   const {
     templateId,
@@ -42,13 +41,8 @@ function Model(option = {}) {
     } // add css class to container
 
     if (this._allowButtonClose) {
-      const btnClose = document.createElement("button");
-      btnClose.className = "model-close";
-      btnClose.innerHTML = "&times;";
+      const btnClose = this._createButton("&times;", "model-close", this.close);
       container.append(btnClose); // append element
-      btnClose.onclick = () => {
-        this.close();
-      }; // handel close event
     }
 
     const modelContent = document.createElement("div");
@@ -64,16 +58,8 @@ function Model(option = {}) {
     if (footer) {
       this._modelFooter = document.createElement("div");
       this._modelFooter.className = "model-footer";
-      if (this._footerContent) {
-        this._modelFooter.innerHTML = this._footerContent;
-      } // add content
-
-      if (this._footerButton.length > 0) {
-        this._footerButton.forEach((btn) => {
-          this._modelFooter.append(btn);
-        });
-      } // add button
-
+      this._renderFooterContent(); // render footer content
+      this._renderButton(); // render button to footer
       container.append(this._modelFooter); // add footer to container
     }
   };
@@ -115,47 +101,27 @@ function Model(option = {}) {
     // disable scroll
     document.body.classList.add("no-scroll");
     //padding right scroll bar
-    document.body.style.paddingRight = getScrollBar() + "px";
-
-    // tinh do rong cua scroll bar
-    function getScrollBar() {
-      if (_scrollBarWidth !== undefined) return _scrollBarWidth;
-      const div = document.createElement("div");
-      div.style.position = "absolute";
-      div.style.top = "-999px";
-      div.style.width = "100px";
-      div.style.height = "100px";
-      div.style.overflow = "scroll";
-      document.body.appendChild(div);
-      _scrollBarWidth = div.offsetWidth - div.clientWidth;
-      document.body.removeChild(div);
-      return _scrollBarWidth;
-    }
-
-    // // onOpen
-    // this._backdrop.ontransitionend = (e) => {
-    //   if (e.propertyName !== "transform") return;
-    //   if (typeof onOpen === "function") {
-    //     onOpen();
-    //   }
-    // };
+    document.body.style.paddingRight = this._getScrollBar() + "px";
 
     // onOpen
-    this._onTransitionEnd(() => {
-      if (typeof onOpen === "function") {
-        onOpen();
-      }
-    });
-
-    // test
-    $("#btn-test-2").onclick = () => {
-      model2.open();
-      $("#btn-test-3").onclick = () => {
-        model3.open();
-      };
-    }; // dang test
+    this._onTransitionEnd(onOpen);
 
     return this._backdrop;
+  };
+
+  // tinh do rong cua scroll bar
+  this._getScrollBar = () => {
+    if (this._scrollBarWidth !== undefined) return this._scrollBarWidth;
+    const div = document.createElement("div");
+    div.style.position = "absolute";
+    div.style.top = "-999px";
+    div.style.width = "100px";
+    div.style.height = "100px";
+    div.style.overflow = "scroll";
+    document.body.appendChild(div);
+    this._scrollBarWidth = div.offsetWidth - div.clientWidth;
+    document.body.removeChild(div);
+    return this._scrollBarWidth;
   };
 
   // -
@@ -207,20 +173,38 @@ function Model(option = {}) {
 
   this.setFooterContent = (html) => {
     this._footerContent = html;
-    if (this._modelFooter) {
-      this._modelFooter.innerHTML = this._footerContent;
-    }
+    this._renderFooterContent(); // render footer content
   };
 
   this._footerButton = [];
 
   this.addFooterButton = (title, className, callback) => {
+    const btn = this._createButton(title, className, callback);
+    this._footerButton.push(btn);
+    this._renderButton(); // render button to footer
+  };
+
+  this._createButton = (title, className, callback) => {
     const btn = document.createElement("button");
     btn.className = className;
     btn.innerHTML = title;
     btn.onclick = callback;
-    this._footerButton.push(btn);
+    return btn;
   };
+
+  this._renderButton = () => {
+    if (this._footerButton.length > 0 && this._modelFooter) {
+      this._footerButton.forEach((btn) => {
+        this._modelFooter.append(btn);
+      });
+    }
+  }; // render button to footer
+
+  this._renderFooterContent = () => {
+    if (this._modelFooter && this._footerContent) {
+      this._modelFooter.innerHTML = this._footerContent;
+    }
+  }; // render footer content
 }
 
 // create model
