@@ -1,9 +1,9 @@
 const $ = document.querySelector.bind(document);
 const $$ = document.querySelectorAll.bind(document);
 
-Model.elements = []; // array save model open current
+Onlay.elements = []; // array save model open current
 
-function Model(option = {}) {
+function Onlay(option = {}) {
   // get content... from option
   this.opt = Object.assign(
     {
@@ -32,14 +32,14 @@ function Model(option = {}) {
 
 // -----------------
 
-Model.prototype._createElement = function () {
+Onlay.prototype._createElement = function () {
   const content = this.template.content.cloneNode(true);
   // create element
   this._backdrop = document.createElement("div");
-  this._backdrop.className = "model-backdrop";
+  this._backdrop.className = "onlay__backdrop";
 
   const container = document.createElement("div");
-  container.className = "model-container";
+  container.className = "onlay__container";
 
   if (this.opt.cssClass.length > 0) {
     this.opt.cssClass.forEach((className) => {
@@ -50,14 +50,14 @@ Model.prototype._createElement = function () {
   } // add css class to container
 
   if (this._allowButtonClose) {
-    const btnClose = this._createButton("&times;", "model-close", () =>
+    const btnClose = this._createButton("&times;", "onlay__close", () =>
       this.close()
     );
     container.append(btnClose); // append element
   }
 
   const modelContent = document.createElement("div");
-  modelContent.className = "model-content";
+  modelContent.className = "onlay__content";
 
   // append element
   modelContent.append(content);
@@ -68,15 +68,15 @@ Model.prototype._createElement = function () {
   // add footer
   if (this.opt.footer) {
     this._modelFooter = document.createElement("div");
-    this._modelFooter.className = "model-footer";
+    this._modelFooter.className = "onlay__footer";
     this._renderFooterContent(); // render footer content
     this._renderButton(); // render button to footer
     container.append(this._modelFooter); // add footer to container
   }
 };
 
-Model.prototype.open = function () {
-  Model.elements.push(this); // push model open current
+Onlay.prototype.open = function () {
+  Onlay.elements.push(this); // push model open current
 
   if (!this._backdrop) {
     this._createElement();
@@ -84,7 +84,7 @@ Model.prototype.open = function () {
 
   // show backdrop
   setTimeout(() => {
-    this._backdrop.classList.add("show");
+    this._backdrop.classList.add("onlay__backdrop--show");
   }, 0);
 
   // handel close event
@@ -98,7 +98,7 @@ Model.prototype.open = function () {
 
   // handel escape close
   this._handelEscapeClose = (e) => {
-    const lastModel = Model.elements[Model.elements.length - 1]; // last model
+    const lastModel = Onlay.elements[Onlay.elements.length - 1]; // last model
     if (e.key === "Escape" && this === lastModel) {
       this.close();
     }
@@ -109,7 +109,7 @@ Model.prototype.open = function () {
   }
 
   // disable scroll
-  document.body.classList.add("no-scroll");
+  document.body.classList.add("onlay--no-scroll");
   //padding right scroll bar
   document.body.style.paddingRight = this._getScrollBar() + "px";
 
@@ -119,14 +119,14 @@ Model.prototype.open = function () {
   return this._backdrop;
 };
 
-Model.prototype.close = function (destroy = this.opt.destroyOnClose) {
+Onlay.prototype.close = function (destroy = this.opt.destroyOnClose) {
   if (this._allowEscapeClose) {
     document.removeEventListener("keydown", this._handelEscapeClose);
   } // remove event listener
 
-  Model.elements.pop(); // remove element last array
+  Onlay.elements.pop(); // remove element last array
 
-  this._backdrop.classList.remove("show");
+  this._backdrop.classList.remove("onlay__backdrop--show");
 
   this._onTransitionEnd(() => {
     this._backdrop.ontransitionend = null; // gỡ handel sau khi chạy xong
@@ -141,20 +141,20 @@ Model.prototype.close = function (destroy = this.opt.destroyOnClose) {
     if (typeof this.opt.onClose === "function") {
       this.opt.onClose();
     }
-    if (!Model.elements.length) {
+    if (!Onlay.elements.length) {
       // enable scroll
-      document.body.classList.remove("no-scroll");
+      document.body.classList.remove("onlay--no-scroll");
       //remove padding right scroll bar
       document.body.style.paddingRight = "";
-    } // Model.length = 0 thi show scroll bar
+    } // Onlay.length = 0 thi show scroll bar
   });
 };
 
-Model.prototype.destroy = function () {
+Onlay.prototype.destroy = function () {
   this.close(true);
 };
 
-Model.prototype._onTransitionEnd = function (callback) {
+Onlay.prototype._onTransitionEnd = function (callback) {
   this._backdrop.ontransitionend = (e) => {
     if (e.propertyName !== "transform") return;
     if (typeof callback === "function") {
@@ -163,7 +163,7 @@ Model.prototype._onTransitionEnd = function (callback) {
   };
 };
 
-Model.prototype._getScrollBar = function () {
+Onlay.prototype._getScrollBar = function () {
   if (this._scrollBarWidth !== undefined) return this._scrollBarWidth;
   const div = document.createElement("div");
   div.style.position = "absolute";
@@ -177,18 +177,18 @@ Model.prototype._getScrollBar = function () {
   return this._scrollBarWidth;
 };
 
-Model.prototype.setFooterContent = function (html) {
+Onlay.prototype.setFooterContent = function (html) {
   this._footerContent = html;
   this._renderFooterContent(); // render footer content
 };
 
-Model.prototype.addFooterButton = function (title, className, callback) {
+Onlay.prototype.addFooterButton = function (title, className, callback) {
   const btn = this._createButton(title, className, callback);
   this._footerButton.push(btn);
   this._renderButton(); // render button to footer
 };
 
-Model.prototype._createButton = function (title, className, callback) {
+Onlay.prototype._createButton = function (title, className, callback) {
   const btn = document.createElement("button");
   btn.className = className;
   btn.innerHTML = title;
@@ -196,7 +196,7 @@ Model.prototype._createButton = function (title, className, callback) {
   return btn;
 };
 
-Model.prototype._renderButton = function () {
+Onlay.prototype._renderButton = function () {
   if (this._footerButton.length > 0 && this._modelFooter) {
     this._footerButton.forEach((btn) => {
       this._modelFooter.append(btn);
@@ -204,7 +204,7 @@ Model.prototype._renderButton = function () {
   }
 }; // render button to footer
 
-Model.prototype._renderFooterContent = function () {
+Onlay.prototype._renderFooterContent = function () {
   if (this._modelFooter && this._footerContent) {
     this._modelFooter.innerHTML = this._footerContent;
   }
@@ -212,7 +212,7 @@ Model.prototype._renderFooterContent = function () {
 
 // ---------------
 // create model
-const model1 = new Model({
+const model1 = new Onlay({
   templateId: "model-1",
   destroyOnClose: false,
   cssClass: ["class1"],
@@ -222,9 +222,9 @@ const model1 = new Model({
   onClose: () => {
     console.log("model 1 close");
   },
-});
+}); // create model 1
 
-const model2 = new Model({
+const model2 = new Onlay({
   templateId: "model-2",
   closeMethods: ["button", "escape"],
   cssClass: ["class1", "class2", "class3"],
@@ -234,9 +234,9 @@ const model2 = new Model({
   onClose: () => {
     console.log("model 2 close");
   },
-});
+}); // create model 2
 
-const model3 = new Model({
+const model3 = new Onlay({
   templateId: "model-3",
   closeMethods: [],
   onOpen: () => {
@@ -246,7 +246,7 @@ const model3 = new Model({
     console.log("model 3 close");
   },
   footer: true,
-});
+}); // create model 3
 
 $("#btn-1").onclick = () => {
   model1.open();
@@ -268,14 +268,14 @@ $("#btn-2").onclick = () => {
 
 $("#btn-3").onclick = () => {
   model3.open();
-};
+}; // open model 3
 
-model3.addFooterButton("Cancel", "model-btn", (e) => {
+model3.addFooterButton("Cancel", "onlay__btn", (e) => {
   console.log("Cancel button click");
   model3.close();
 });
 
-model3.addFooterButton("Agree", "model-btn primary", (e) => {
+model3.addFooterButton("Agree", "onlay__btn onlay__btn--primary", (e) => {
   console.log("Agree button click");
   model3.close();
 });
